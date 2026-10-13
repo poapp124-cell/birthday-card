@@ -40,6 +40,10 @@ gesture. Turning notifications off removes the server subscription and
 unsubscribes the browser PushSubscription; a browser-level permission already
 granted must be revoked separately in browser or device settings.
 
+Birthday card messages are limited to 1,000 characters. Apply the updated
+`database/schema.sql` to add the matching database constraint; the constraint
+is added `NOT VALID` so older cards remain readable while new writes are checked.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

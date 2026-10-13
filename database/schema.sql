@@ -164,8 +164,13 @@ CREATE TABLE IF NOT EXISTS cards (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   unlock_at TIMESTAMPTZ NOT NULL,
   CONSTRAINT cards_no_self_reference CHECK (sender_id <> receiver_id),
-  CONSTRAINT cards_message_length CHECK (char_length(message) BETWEEN 1 AND 2000)
+  CONSTRAINT cards_message_length CHECK (char_length(message) BETWEEN 1 AND 1000)
 );
+
+ALTER TABLE cards DROP CONSTRAINT IF EXISTS cards_message_length;
+ALTER TABLE cards
+  ADD CONSTRAINT cards_message_length
+  CHECK (char_length(message) BETWEEN 1 AND 1000) NOT VALID;
 
 ALTER TABLE cards
   ADD COLUMN IF NOT EXISTS design_id TEXT NOT NULL DEFAULT 'classic';

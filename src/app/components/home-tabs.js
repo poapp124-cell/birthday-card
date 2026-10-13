@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import ShareTimelineLink from "@/app/components/share-timeline-link";
-import { cardDesigns } from "@/lib/card-designs";
 
 const tabs = [
   { id: "upcoming", label: "誕生日が近い友達" },
@@ -43,142 +42,15 @@ function birthdayLabel(birthday) {
   return `${Number(month)}月${Number(day)}日`;
 }
 
-function BirthdayCardFields({ disabled, idPrefix }) {
-  return (
-    <>
-      <fieldset>
-        <legend className="mb-2 text-sm font-semibold">カードのデザイン</legend>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {cardDesigns.map((design, index) => (
-            <label className="cursor-pointer" key={design.id}>
-              <input
-                className="peer sr-only"
-                type="radio"
-                name="designId"
-                value={design.id}
-                defaultChecked={index === 0}
-                disabled={disabled}
-              />
-              <span
-                className="block rounded-md border-2 p-1 transition peer-checked:ring-2 peer-checked:ring-[#087f3a] peer-checked:ring-offset-1 peer-focus-visible:outline-2 peer-focus-visible:outline-[#087f3a]"
-                style={{
-                  backgroundColor: design.background,
-                  backgroundImage: design.pattern,
-                  borderColor: design.border,
-                  borderStyle: design.borderStyle,
-                  color: design.text,
-                }}
-              >
-                <span className="block min-h-12 rounded-sm border border-current/30 p-2 text-center text-xs font-semibold">
-                  {design.name}
-                </span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <div>
-        <label
-          className="mb-2 block text-sm font-semibold"
-          htmlFor={`${idPrefix}-message`}
-        >
-          メッセージ
-        </label>
-        <textarea
-          className="min-h-32 w-full resize-y rounded-md border border-[#b9c8bf] bg-white px-3 py-2 text-base leading-7 outline-none focus:border-[#087f3a] focus:ring-2 focus:ring-[#087f3a]/20 disabled:bg-[#edf2ed]"
-          id={`${idPrefix}-message`}
-          name="message"
-          maxLength={2000}
-          required
-          disabled={disabled}
-        />
-      </div>
-      <fieldset className="space-y-2">
-        <legend className="mb-2 text-sm font-semibold">公開範囲</legend>
-        <label className="flex min-h-10 items-center gap-3 text-sm">
-          <input
-            className="size-4 accent-[#087f3a]"
-            type="radio"
-            name="visibility"
-            value="public"
-            defaultChecked
-            disabled={disabled}
-          />
-          全体公開（友達のバースデーカードに表示）
-        </label>
-        <label className="flex min-h-10 items-center gap-3 text-sm">
-          <input
-            className="size-4 accent-[#087f3a]"
-            type="radio"
-            name="visibility"
-            value="private"
-            disabled={disabled}
-          />
-          本人限定（誕生日の本人のみ閲覧）
-        </label>
-      </fieldset>
-    </>
-  );
-}
-
-function InlineBirthdayCardForm({
-  friend,
-  createCardAction,
-  databaseConfigured,
-  cardError,
-}) {
-  return (
-    <form
-      action={createCardAction}
-      className="mt-3 space-y-4 rounded-md border border-[#eadfc9] bg-[#fffdf8] p-4"
-    >
-      <input type="hidden" name="receiverPublicId" value={friend.publicId} />
-      <input type="hidden" name="inlineCompose" value={friend.publicId} />
-      <p className="text-sm font-semibold">{friend.name}さんへ贈るカード</p>
-      <BirthdayCardFields
-        disabled={!databaseConfigured}
-        idPrefix={`inline-card-${friend.publicId}`}
-      />
-      {(cardError === "invalid-input" || cardError === "invalid-design") && (
-        <p className="text-sm text-red-700" role="alert">
-          メッセージまたはカードのデザインを確認してください。
-        </p>
-      )}
-      {cardError === "friend-unavailable" && (
-        <p className="text-sm text-red-700" role="alert">
-          選択した友達との関係を確認できませんでした。
-        </p>
-      )}
-      {!databaseConfigured && (
-        <p className="text-sm text-[#8a4b22]" role="status">
-          カードを保存するにはNeonデータベースの設定が必要です。
-        </p>
-      )}
-      <button
-        className="min-h-11 w-full rounded-md bg-[#ba694f] px-5 py-2 font-semibold text-white transition-colors hover:bg-[#9e543d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087f3a] disabled:cursor-not-allowed disabled:opacity-50"
-        type="submit"
-        disabled={!databaseConfigured}
-      >
-        バースデーカードを送る
-      </button>
-    </form>
-  );
-}
-
 export default function HomeTabs({
   friends,
-  createCardAction,
   initialTab = "upcoming",
   postedTo,
-  cardError,
-  databaseConfigured,
-  inlineComposeFriendId,
 }) {
   const validInitialTab = tabs.some((tab) => tab.id === initialTab)
     ? initialTab
     : "upcoming";
   const [activeTab, setActiveTab] = useState(validInitialTab);
-  const [inlineFriendId, setInlineFriendId] = useState(inlineComposeFriendId);
   const upcomingFriends = useMemo(
     () =>
       friends
@@ -186,12 +58,6 @@ export default function HomeTabs({
         .sort((left, right) => left.daysUntilBirthday - right.daysUntilBirthday),
     [friends],
   );
-  function toggleInlineComposer(friend) {
-    setInlineFriendId((currentId) =>
-      currentId === friend.publicId ? null : friend.publicId,
-    );
-  }
-
   return (
     <section className="mt-8">
       {postedTo && (
@@ -270,32 +136,16 @@ export default function HomeTabs({
                             : `あと${friend.daysUntilBirthday}日`}
                         </p>
                       </div>
-                    </div>
-                    {friend.daysUntilBirthday <= 1 ? (
-                      <>
-                        <button
-                          className="mt-2 flex min-h-10 w-full items-center justify-center rounded-md bg-[#087f3a] px-3 text-center text-sm font-semibold text-white transition-colors hover:bg-[#06682f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087f3a]"
-                          type="button"
-                          aria-expanded={inlineFriendId === friend.publicId}
-                          aria-controls={`inline-compose-${friend.publicId}`}
-                          onClick={() => toggleInlineComposer(friend)}
+                      {friend.daysUntilBirthday <= 1 && (
+                        <Link
+                          className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] px-3 text-xs font-bold text-[var(--accent)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+                          href={`/cards/new?friendId=${encodeURIComponent(friend.publicId)}`}
                         >
-                          {friend.daysUntilBirthday === 1
-                            ? "バースデーカードを作成"
-                            : "今日のカードを書く"}
-                        </button>
-                        {inlineFriendId === friend.publicId && (
-                          <div id={`inline-compose-${friend.publicId}`}>
-                            <InlineBirthdayCardForm
-                              friend={friend}
-                              createCardAction={createCardAction}
-                              databaseConfigured={databaseConfigured}
-                              cardError={cardError}
-                            />
-                          </div>
-                        )}
-                      </>
-                    ) : (
+                          カードを書く
+                        </Link>
+                      )}
+                    </div>
+                    {friend.daysUntilBirthday > 1 && (
                       <Link
                         className="mt-2 flex min-h-10 items-center justify-center rounded-md bg-[#ba694f] px-3 text-center text-sm font-semibold text-white transition-colors hover:bg-[#9e543d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087f3a]"
                         href={`/timeline/${friend.publicId}`}

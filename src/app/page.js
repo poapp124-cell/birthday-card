@@ -11,13 +11,9 @@ import {
   getBirthdayProfile,
 } from "@/lib/birthday-profile";
 import {
-  birthdayCardDesigns,
-  createBirthdayCard,
   getBirthdayFriends,
   getDaysUntilBirthday,
 } from "@/lib/birthday-cards";
-
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export default function Home({ searchParams }) {
   return (
@@ -82,55 +78,6 @@ async function HomeContent({ searchParams }) {
   const initialTab = ["upcoming", "friends"].includes(params.tab)
     ? params.tab
     : "upcoming";
-  const inlineComposeFriendId =
-    typeof params.inlineCompose === "string" &&
-    friends.some(
-      (friend) =>
-        friend.publicId === params.inlineCompose &&
-        friend.daysUntilBirthday <= 1,
-    )
-      ? params.inlineCompose
-      : null;
-
-  async function createCardAction(formData) {
-    "use server";
-    const currentSession = await auth();
-    if (!currentSession?.user?.id) redirect("/");
-
-    const receiverPublicId = String(formData.get("receiverPublicId") || "").trim();
-    const message = String(formData.get("message") || "").trim();
-    const designId = String(formData.get("designId") || "");
-    const visibility = formData.get("visibility");
-    const inlineCompose = String(formData.get("inlineCompose") || "");
-    const inlineFriendQuery = uuidPattern.test(inlineCompose)
-      ? `&inlineCompose=${inlineCompose}`
-      : "";
-    if (
-      (visibility !== "public" && visibility !== "private") ||
-      !birthdayCardDesigns.includes(designId)
-    ) {
-      redirect(`/?tab=upcoming&cardError=invalid-input${inlineFriendQuery}`);
-    }
-
-    if (!uuidPattern.test(receiverPublicId) || !message || message.length > 2000) {
-      redirect(`/?tab=upcoming&cardError=invalid-input${inlineFriendQuery}`);
-    }
-
-    const recipientPublicId = await createBirthdayCard({
-      senderId: currentSession.user.id,
-      senderName: currentSession.user.name || "LINEユーザー",
-      receiverPublicId,
-      message,
-      isPrivate: visibility === "private",
-      designId,
-    });
-    if (!recipientPublicId) {
-      redirect(`/?tab=upcoming&cardError=friend-unavailable${inlineFriendQuery}`);
-    }
-
-    redirect(`/?tab=upcoming&postedTo=${recipientPublicId}`);
-  }
-
   return (
     <main className="min-h-screen bg-[#fffaf0] px-4 py-5 text-[#263c36] sm:px-6 sm:py-8">
       <div className="mx-auto w-full max-w-md">
@@ -221,12 +168,8 @@ async function HomeContent({ searchParams }) {
 
         <HomeTabs
           friends={friends}
-          createCardAction={createCardAction}
           initialTab={initialTab}
           postedTo={postedTo}
-          cardError={params.cardError}
-          databaseConfigured={databaseConfigured}
-          inlineComposeFriendId={inlineComposeFriendId}
         />
         <PushNotificationSettings showSettings={false} />
       </div>

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import UnlockCountdown from "@/app/components/unlock-countdown";
+import TimelineCard from "@/app/components/timeline-card";
 import { getCardDesign } from "@/lib/card-designs";
 import { getBirthdayTimeline, getDaysUntilBirthday } from "@/lib/birthday-cards";
 
@@ -131,50 +132,7 @@ async function Timeline({ params }) {
                     style={{ borderColor: design.border }}
                     aria-hidden="true"
                   />
-                  <article
-                    className="rounded-xl border-2 p-5 shadow-sm"
-                    style={{
-                      backgroundColor: design.background,
-                      backgroundImage: design.pattern,
-                      borderColor: design.border,
-                      borderStyle: design.borderStyle,
-                      color: design.text,
-                    }}
-                  >
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <p className="font-semibold">
-                          {card.senderName || "LINEユーザー"}さんから
-                        </p>
-                        <p className="mt-1 text-xs opacity-75">
-                          {new Date(card.createdAt).toLocaleString("ja-JP", {
-                            timeZone: "Asia/Tokyo",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-current/40 px-2 py-1 text-xs font-semibold">
-                        {design.name}
-                      </span>
-                      {isOwner && card.isPrivate && (
-                        <span className="shrink-0 rounded-sm bg-white/60 px-2 py-1 text-xs font-semibold">
-                          本人限定
-                        </span>
-                      )}
-                      {isOwner && card.archived && (
-                        <span className="shrink-0 rounded-sm bg-white/60 px-2 py-1 text-xs">
-                          アーカイブ
-                        </span>
-                      )}
-                    </div>
-                    <p className="whitespace-pre-wrap break-words leading-8">
-                      {card.message}
-                    </p>
-                  </article>
+                  <TimelineCard card={card} design={design} isOwner={isOwner} />
                 </div>
               );
             })}

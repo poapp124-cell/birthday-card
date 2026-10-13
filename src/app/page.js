@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
 import HomeTabs from "@/app/components/home-tabs";
 import PushNotificationSettings from "@/app/components/push-notification-settings";
+import CopyCustomId from "@/app/components/copy-custom-id";
 import {
   ensureBirthdayProfile,
   getBirthdayProfile,
@@ -126,9 +127,7 @@ async function HomeContent({ searchParams }) {
           <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-[#c7d5cb] bg-white px-3 py-2.5">
             <p className="text-sm font-semibold text-[#263c36]">My ID</p>
             {profile?.customId ? (
-              <p className="min-w-0 break-all text-right text-sm text-[#56645e]">
-                @{profile.customId}
-              </p>
+              <CopyCustomId customId={profile.customId} />
             ) : (
               <Link
                 className="text-sm font-semibold text-[#087f3a] underline underline-offset-4"

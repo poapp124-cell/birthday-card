@@ -99,6 +99,7 @@ export async function getFriendRequestLists(userId) {
     FROM friend_requests AS request
     JOIN user_profiles AS recipient ON recipient.line_user_id = request.recipient_id
     WHERE request.requester_id = ${userId}
+      AND request.status = 'pending'
     ORDER BY request.updated_at DESC
     LIMIT 100
   `;

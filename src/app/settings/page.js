@@ -2,14 +2,22 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import AppearanceSettings from "../components/appearance-settings";
-import PushNotificationSettings from "../components/push-notification-settings";
 
 const settingMenus = [
   {
     href: "/settings/profile",
-    title: "プロフィール設定",
-    description: "表示名・誕生日・My IDを変更します。",
+    title: "プロフィール・My ID",
+    description: "表示名、誕生日、My IDを設定します。",
+  },
+  {
+    href: "/settings/display",
+    title: "表示設定",
+    description: "カラーテーマと文字サイズを変更します。",
+  },
+  {
+    href: "/settings/notifications",
+    title: "通知設定",
+    description: "誕生日のお知らせとホーム画面追加の案内を設定します。",
   },
   {
     href: "/settings/friends",
@@ -70,8 +78,6 @@ async function SettingsMenuContent() {
             </Link>
           ))}
         </nav>
-        <AppearanceSettings />
-        <PushNotificationSettings />
       </div>
     </main>
   );

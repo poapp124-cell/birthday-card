@@ -1,18 +1,16 @@
 {
   "name": "バースデーカード",
   "short_name": "バースデーカード",
-  "description": "大切な人にバースデーカードを贈りましょう。",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#fff8f7",
-  "theme_color": "#d9859b",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

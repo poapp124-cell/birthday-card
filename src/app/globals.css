@@ -175,6 +175,18 @@ textarea {
   min-height: 8rem;
 }
 
+textarea.card-message-editor {
+  padding-right: 1.25rem;
+  padding-left: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  textarea.card-message-editor {
+    padding-right: 1.75rem;
+    padding-left: 1.75rem;
+  }
+}
+
 [class~="rounded-md"],
 [class~="rounded-xl"] {
   border-radius: 1.25rem;

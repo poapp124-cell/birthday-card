@@ -1,13 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { cardDesigns } from "@/lib/card-designs";
 
 function BirthdayCardFields({ disabled, idPrefix }) {
   const [designId, setDesignId] = useState(cardDesigns[0].id);
   const [message, setMessage] = useState("");
+  const messageInputRef = useRef(null);
   const selectedDesign =
     cardDesigns.find((design) => design.id === designId) || cardDesigns[0];
+
+  useLayoutEffect(() => {
+    const textarea = messageInputRef.current;
+    if (!textarea) return;
+
+    const mirror = document.createElement("div");
+    mirror.setAttribute("aria-hidden", "true");
+    Object.assign(mirror.style, {
+      position: "fixed",
+      top: "0",
+      left: "-10000px",
+      visibility: "hidden",
+      whiteSpace: "pre-wrap",
+      overflowWrap: "break-word",
+      wordBreak: getComputedStyle(textarea).wordBreak,
+      boxSizing: "content-box",
+      padding: "0",
+      border: "0",
+      height: "auto",
+    });
+    document.body.appendChild(mirror);
+
+    const updateVerticalAlignment = () => {
+      const computedStyle = getComputedStyle(textarea);
+      const borderWidth =
+        parseFloat(computedStyle.borderTopWidth) +
+        parseFloat(computedStyle.borderBottomWidth);
+      const horizontalPadding =
+        parseFloat(computedStyle.paddingLeft) +
+        parseFloat(computedStyle.paddingRight);
+      const contentWidth = textarea.clientWidth - horizontalPadding;
+
+      Object.assign(mirror.style, {
+        width: `${Math.max(0, contentWidth)}px`,
+        font: computedStyle.font,
+        letterSpacing: computedStyle.letterSpacing,
+        lineHeight: computedStyle.lineHeight,
+        textIndent: computedStyle.textIndent,
+        textTransform: computedStyle.textTransform,
+      });
+      mirror.textContent = message || textarea.placeholder || "\u00a0";
+
+      const textHeight = mirror.getBoundingClientRect().height;
+      const contentHeight = textarea.clientHeight - borderWidth;
+      const verticalPadding = Math.max(0, (contentHeight - textHeight) / 2);
+      textarea.style.paddingTop = `${verticalPadding}px`;
+      textarea.style.paddingBottom = `${verticalPadding}px`;
+    };
+
+    updateVerticalAlignment();
+    const observer = new ResizeObserver(updateVerticalAlignment);
+    observer.observe(textarea);
+
+    return () => {
+      observer.disconnect();
+      mirror.remove();
+    };
+  }, [message]);
 
   return (
     <>
@@ -51,11 +110,12 @@ function BirthdayCardFields({ disabled, idPrefix }) {
           メッセージ
         </label>
         <textarea
-          className="block aspect-[4/3] w-full resize-none rounded-[1.75rem] border-2 px-5 py-8 text-center text-base leading-7 outline-none placeholder:text-center placeholder:opacity-60 focus:ring-2 focus:ring-[#087f3a]/20 disabled:opacity-70 sm:px-7 sm:text-lg sm:leading-8"
+          className="card-message-editor block aspect-[4/3] w-full resize-none rounded-[1.75rem] border-2 text-center text-base leading-7 break-words outline-none placeholder:text-center placeholder:opacity-60 focus:ring-2 focus:ring-[#087f3a]/20 disabled:opacity-70 sm:text-lg sm:leading-8"
           id={`${idPrefix}-message`}
           name="message"
           maxLength={1000}
           value={message}
+          ref={messageInputRef}
           onChange={(event) => setMessage(event.target.value)}
           placeholder="ここにメッセージを入力"
           style={{

@@ -51,12 +51,13 @@ function BirthdayCardFields({ disabled, idPrefix }) {
           メッセージ
         </label>
         <textarea
-          className="min-h-40 w-full resize-y rounded-md border border-[#b9c8bf] bg-white px-3 py-2 text-base leading-7 outline-none focus:border-[#087f3a] focus:ring-2 focus:ring-[#087f3a]/20 disabled:bg-[#edf2ed]"
+          className="block aspect-[4/3] w-full resize-none rounded-[1.75rem] border-2 px-5 py-8 text-center text-base leading-7 outline-none placeholder:text-center placeholder:opacity-60 focus:ring-2 focus:ring-[#087f3a]/20 disabled:opacity-70 sm:px-7 sm:text-lg sm:leading-8"
           id={`${idPrefix}-message`}
           name="message"
           maxLength={1000}
           value={message}
           onChange={(event) => setMessage(event.target.value)}
+          placeholder="ここにメッセージを入力"
           style={{
             backgroundColor: selectedDesign.background,
             backgroundImage: selectedDesign.pattern,

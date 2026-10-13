@@ -180,6 +180,16 @@ CREATE INDEX IF NOT EXISTS cards_receiver_unlock_idx
 CREATE INDEX IF NOT EXISTS cards_sender_created_idx
   ON cards (sender_id, created_at DESC);
 
+CREATE TABLE IF NOT EXISTS card_reactions (
+  card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
+  user_line_user_id TEXT NOT NULL REFERENCES user_profiles(line_user_id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (card_id, user_line_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS card_reactions_user_idx
+  ON card_reactions (user_line_user_id);
+
 CREATE TABLE IF NOT EXISTS push_subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   line_user_id TEXT NOT NULL REFERENCES user_profiles(line_user_id) ON DELETE CASCADE,

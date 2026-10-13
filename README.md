@@ -43,6 +43,8 @@ granted must be revoked separately in browser or device settings.
 Birthday card messages are limited to 1,000 characters. Apply the updated
 `database/schema.sql` to add the matching database constraint; the constraint
 is added `NOT VALID` so older cards remain readable while new writes are checked.
+The same schema creates the `card_reactions` table required for persistent likes
+on visible birthday cards.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 

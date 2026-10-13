@@ -81,12 +81,9 @@ async function Timeline({ params }) {
         </header>
 
         {isOwner && daysUntilBirthday === 0 && (
-          <Link
-            className="mb-6 flex min-h-12 items-center justify-center rounded-md bg-[#ba694f] px-4 text-center font-bold text-white shadow-sm transition-colors hover:bg-[#9e543d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087f3a]"
-            href="#birthday-cards"
-          >
-            届いたカードを開く
-          </Link>
+          <h2 className="mb-6 text-center text-4xl font-extrabold tracking-wide text-[var(--accent)] drop-shadow-sm sm:text-5xl">
+            Happy Birthday!!
+          </h2>
         )}
 
         {isOwner && daysUntilBirthday > 0 && birthdayParts && (

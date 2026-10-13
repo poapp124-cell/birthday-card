@@ -6,6 +6,10 @@ export default function TimelineCard({ card, design, isOwner }) {
   const messageRef = useRef(null);
   const [isTruncated, setIsTruncated] = useState(false);
   const [showFullMessage, setShowFullMessage] = useState(false);
+  const [likeCount, setLikeCount] = useState(card.likeCount || 0);
+  const [liked, setLiked] = useState(Boolean(card.viewerLiked));
+  const [reactionError, setReactionError] = useState("");
+  const [reactionPending, setReactionPending] = useState(false);
 
   useEffect(() => {
     const messageElement = messageRef.current;
@@ -23,10 +27,38 @@ export default function TimelineCard({ card, design, isOwner }) {
     return () => observer.disconnect();
   }, [card.message]);
 
+  async function toggleLike() {
+    if (reactionPending) return;
+    setReactionPending(true);
+    setReactionError("");
+
+    try {
+      const response = await fetch("/api/cards/reaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardId: card.id, liked: !liked }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          result.error === "card_not_available"
+            ? "このカードにはリアクションできません。"
+            : "いいねを保存できませんでした。時間をおいて再度お試しください。",
+        );
+      }
+      setLikeCount(result.likeCount);
+      setLiked(result.liked);
+    } catch (error) {
+      setReactionError(error.message);
+    } finally {
+      setReactionPending(false);
+    }
+  }
+
   return (
     <>
       <article
-        className="relative flex aspect-[3/4] w-full max-w-md flex-col overflow-hidden rounded-[1.75rem] border-2 p-5 shadow-[var(--surface-shadow)] sm:p-7"
+        className="relative flex aspect-[4/3] w-full flex-col overflow-hidden rounded-[1.75rem] border-2 p-5 shadow-[var(--surface-shadow)] sm:p-7"
         style={{
           backgroundColor: design.background,
           backgroundImage: design.pattern,
@@ -46,7 +78,7 @@ export default function TimelineCard({ card, design, isOwner }) {
             {card.message}
           </p>
         </div>
-        <div className="flex min-h-8 shrink-0 items-end justify-between gap-2">
+        <div className="flex min-h-10 shrink-0 items-end justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             {isOwner && card.isPrivate && (
               <span className="rounded-full bg-white/60 px-2 py-1 text-xs font-semibold">
@@ -59,17 +91,48 @@ export default function TimelineCard({ card, design, isOwner }) {
               </span>
             )}
           </div>
-          {isTruncated && (
+          <div className="flex shrink-0 items-center gap-2">
+            {isTruncated && (
+              <button
+                className="rounded-full bg-white/70 px-3 py-1.5 text-xs font-semibold underline underline-offset-2"
+                onClick={() => setShowFullMessage(true)}
+                type="button"
+              >
+                もっと見る
+              </button>
+            )}
             <button
-              className="shrink-0 rounded-full bg-white/70 px-3 py-1.5 text-xs font-semibold underline underline-offset-2"
-              onClick={() => setShowFullMessage(true)}
+              aria-label={liked ? `いいねを取り消す。${likeCount}件` : `いいね。${likeCount}件`}
+              aria-pressed={liked}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white/75 px-3 text-sm font-semibold transition hover:scale-105 disabled:cursor-wait disabled:opacity-60"
+              disabled={reactionPending}
+              onClick={toggleLike}
               type="button"
             >
-              もっと見る
+              <svg
+                aria-hidden="true"
+                className="size-4"
+                fill={liked ? "currentColor" : "none"}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.8"
+                />
+              </svg>
+              <span>{likeCount}</span>
             </button>
-          )}
+          </div>
         </div>
       </article>
+      {reactionError && (
+        <p className="mt-2 text-sm text-red-700" role="alert">
+          {reactionError}
+        </p>
+      )}
       {showFullMessage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4"

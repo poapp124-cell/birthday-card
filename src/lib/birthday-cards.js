@@ -213,7 +213,16 @@ export async function getBirthdayTimeline(viewerId, publicId) {
           card.created_at AS "createdAt",
           card.unlock_at AS "unlockAt",
           card.unlock_at + INTERVAL '48 hours' <= NOW() AS archived,
-          sender.display_name AS "senderName"
+          sender.display_name AS "senderName",
+          (
+            SELECT COUNT(*)::int FROM card_reactions AS reaction
+            WHERE reaction.card_id = card.id
+          ) AS "likeCount",
+          EXISTS (
+            SELECT 1 FROM card_reactions AS reaction
+            WHERE reaction.card_id = card.id
+              AND reaction.user_line_user_id = ${viewerId}
+          ) AS "viewerLiked"
         FROM cards AS card
         JOIN user_profiles AS sender ON sender.line_user_id = card.sender_id
         WHERE card.receiver_id = ${profile.lineUserId}
@@ -227,7 +236,16 @@ export async function getBirthdayTimeline(viewerId, publicId) {
             card.message,
             card.created_at AS "createdAt",
             card.design_id AS "designId",
-            sender.display_name AS "senderName"
+            sender.display_name AS "senderName",
+            (
+              SELECT COUNT(*)::int FROM card_reactions AS reaction
+              WHERE reaction.card_id = card.id
+            ) AS "likeCount",
+            EXISTS (
+              SELECT 1 FROM card_reactions AS reaction
+              WHERE reaction.card_id = card.id
+                AND reaction.user_line_user_id = ${viewerId}
+            ) AS "viewerLiked"
           FROM cards AS card
           JOIN user_profiles AS sender ON sender.line_user_id = card.sender_id
           WHERE card.receiver_id = ${profile.lineUserId}
@@ -243,7 +261,16 @@ export async function getBirthdayTimeline(viewerId, publicId) {
           card.message,
           card.created_at AS "createdAt",
           card.design_id AS "designId",
-          sender.display_name AS "senderName"
+          sender.display_name AS "senderName",
+          (
+            SELECT COUNT(*)::int FROM card_reactions AS reaction
+            WHERE reaction.card_id = card.id
+          ) AS "likeCount",
+          EXISTS (
+            SELECT 1 FROM card_reactions AS reaction
+            WHERE reaction.card_id = card.id
+              AND reaction.user_line_user_id = ${viewerId}
+          ) AS "viewerLiked"
         FROM cards AS card
         JOIN user_profiles AS sender ON sender.line_user_id = card.sender_id
         WHERE card.receiver_id = ${profile.lineUserId}

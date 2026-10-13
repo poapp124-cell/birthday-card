@@ -59,9 +59,7 @@ async function Settings({ searchParams }) {
       redirect("/settings/profile?error=invalid-profile");
     }
 
-    const birthdayMatch = birthdayInput.match(
-      /^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/,
-    );
+    const birthdayMatch = birthdayInput.match(/^([0-9]{2})([0-9]{2})$/);
     if (!birthdayMatch) redirect("/settings/profile?error=invalid-birthday");
 
     const month = Number(birthdayMatch[1]);
@@ -70,6 +68,7 @@ async function Settings({ searchParams }) {
     if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
       redirect("/settings/profile?error=invalid-birthday");
     }
+    const birthdayMonthDay = `${birthdayMatch[1]}-${birthdayMatch[2]}`;
 
     if (customIdInput && !/^[a-z0-9_]{3,20}$/.test(customIdInput)) {
       redirect("/settings/profile?error=invalid-custom-id");
@@ -85,7 +84,7 @@ async function Settings({ searchParams }) {
     try {
       await saveProfileSettings(currentSession.user.id, {
         displayName,
-        birthdayMonthDay: birthdayInput,
+        birthdayMonthDay,
         allowBirthdayNotification,
         customId: customIdInput || null,
       });
@@ -160,16 +159,16 @@ async function Settings({ searchParams }) {
                 name="birthdayMonthDay"
                 type="text"
                 inputMode="numeric"
-                autoComplete="bday-day"
-                maxLength={5}
-                pattern="(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
-                placeholder="MM-DD"
+                autoComplete="off"
+                maxLength={4}
+                pattern="[0-9]{4}"
+                placeholder="0512"
                 required
-                defaultValue={profile?.birthday || ""}
+                defaultValue={profile?.birthday?.replace("-", "") || ""}
                 aria-describedby="birthday-help"
               />
               <p id="birthday-help" className="mt-1 text-xs text-[#56645e]">
-                例: 04-15。年は保存しません。
+                月日を数字4桁で入力してください（例: 0512 は5月12日）。年は保存しません。
               </p>
             </div>
             <CustomIdField defaultValue={profile?.customId || ""} />
@@ -199,7 +198,7 @@ async function Settings({ searchParams }) {
             )}
             {params.error === "invalid-birthday" && (
               <p className="text-sm text-red-700" role="alert">
-                実在する月日を MM-DD 形式で入力してください。
+                月日を数字4桁（例: 0512）で入力してください。存在しない日付は登録できません。
               </p>
             )}
             {params.saved === "1" && (

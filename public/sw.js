@@ -30,8 +30,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "バースデーカード";
   const options = {
     body: payload.body || "誕生日が近いフレンドがいます。",
-    icon: "/icon.svg",
-    badge: "/icon.svg",
+    icon: "/pwa-icons/icon-192.png",
+    badge: "/pwa-icons/icon-192.png",
     data: { url: payload.url || "/" },
   };
   event.waitUntil(self.registration.showNotification(title, options));

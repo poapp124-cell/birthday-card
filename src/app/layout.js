@@ -21,10 +21,6 @@ export const metadata = {
     statusBarStyle: "default",
     title: "バースデーカード",
   },
-  icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
-  },
 };
 
 export default function RootLayout({ children }) {
